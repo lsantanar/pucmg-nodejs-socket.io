@@ -19,11 +19,46 @@
     </style>
 </head>
 <body>
-
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+
+        //variavéis que pegam o elemento pelo id
+        //e cria uma função de evento para guardar os dados
+        //além de enviar uma mensagem ao servidor via websocket 
+
+        const messageForm = document.getElementById('comment-form');
+        const messageList = document.getElementById('messages');
+
+        messageForm.onsubmit = function(event) {
+            event.preventDefault();
+            const author = document.getElementById('author').value;
+            const comment = document.getElementById('comment').value;
+            const data = { author, comment }    
+            renderElement(data);    
+            socket.emit('sendMessage', data)
+        }
+
+        socket.on('renderMessage', (conteudo) => {
+            renderElement(conteudo);
+        });
+            
+        const renderElement = function(message) {
+            const element = document.createElement('li');
+            element.innerHTML = `<strong>${message.author}</strong>: ${message.comment}`;
+            messageList.append(element);
+        }
     </script>
+
+    <ul id="messages"></ul>
+
+    <form id="comment-form">
+        <label for="author">Author: </label><br>
+        <input id="author" type="text" name="author"><br><br>
+        <label for="comment">Comment: </label><br>
+        <input id="comment" type="text" name="comment"><br>
+        <button type="submit">Send</button> 
+    </form>
+
 </body>
 </html>
